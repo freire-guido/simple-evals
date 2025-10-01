@@ -135,7 +135,7 @@ class AdversarialSampler(SamplerBase):
                     return SamplerResponse(
                         response_text="",
                         response_metadata={
-                            "usage": red_team_response.response_metadata["usage"] + response.usage,
+                            "usage": red_team_response.response_metadata["usage"] + response.metadata["usage"],
                             "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
                             "scratchpad_blue": scratchpad,
                         },
@@ -153,7 +153,7 @@ class AdversarialSampler(SamplerBase):
             return SamplerResponse(
                 response_text=response.output_text,
                 response_metadata={
-                    "usage": response.usage + red_team_response.response_metadata["usage"],
+                    "usage": response.metadata["usage"] + red_team_response.response_metadata["usage"],
                     "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
                     "scratchpad_blue": scratchpad,
                 },
