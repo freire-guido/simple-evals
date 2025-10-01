@@ -78,7 +78,7 @@ class AdversarialSampler(SamplerBase):
                             temperature=self.temperature,
                             max_output_tokens=self.max_tokens,
                         )
-                    scratchpad.append(self._pack_message("developer", red_message))
+                    scratchpad.append(red_message)
                     scratchpad.append(self._pack_message("assistant", response.output_text))
                 except openai.BadRequestError as e:
                     print("Bad Request Error", e)
@@ -128,16 +128,7 @@ class AdversarialSampler(SamplerBase):
                             temperature=self.temperature,
                             max_output_tokens=self.max_tokens,
                         )
-                    return SamplerResponse(
-                        response_text=response.output_text,
-                        response_metadata={
-                            "usage": response.usage + red_team_response.response_metadata["usage"],
-                            "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
-                            "scratchpad_blue": scratchpad,
-                        },
-                        actual_queried_message_list=message_list,
-                    )
-                    scratchpad.append(self._pack_message("developer", blue_message))
+                    scratchpad.append(blue_message)
                     scratchpad.append(self._pack_message("assistant", response.output_text))
                 except openai.BadRequestError as e:
                     print("Bad Request Error", e)
@@ -159,3 +150,12 @@ class AdversarialSampler(SamplerBase):
                     time.sleep(exception_backoff)
                     trial += 1
                 # unknown error shall throw exception
+        return SamplerResponse(
+            response_text=response.output_text,
+            response_metadata={
+                "usage": response.usage + red_team_response.response_metadata["usage"],
+                "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
+                "scratchpad_blue": scratchpad,
+            },
+            actual_queried_message_list=message_list,
+        )
