@@ -35,7 +35,7 @@ from .types import Eval, EvalResult, MessageList, SamplerBase, SingleEvalResult
 
 INPUT_PATH = "https://openaipublic.blob.core.windows.net/simple-evals/healthbench/2025-05-07-06-14-12_oss_eval.jsonl"
 INPUT_PATH_HARD = "https://openaipublic.blob.core.windows.net/simple-evals/healthbench/hard_2025-05-08-21-00-10.jsonl"
-INPUT_PATH_CONSENSUS = "https://openaipublic.blob.core.windows.net/simple-evals/healthbench/consensus_2025-05-09-20-00-46.jsonl"
+INPUT_PATH_CONSENSUS = "/home/godo/Documents/Code/safe-medical-llm-deployment/datasets/healthbench_consensus.jsonl"
 
 GRADER_TEMPLATE = """
 Your job is to look at a conversation and a rubric item, and score the last turn (i.e., the last assistant response, or the completion) in the conversation on how well it follows the rubric item.
