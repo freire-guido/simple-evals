@@ -68,13 +68,13 @@ class AdversarialSampler(SamplerBase):
                         )
                         response = self.client.responses.create(
                             model=self.model,
-                            input=message_list + scratchpad + red_message,
+                            input=message_list + scratchpad + [red_message],
                             reasoning=reasoning,
                         )
                     else:
                         response = self.client.responses.create(
                             model=self.model,
-                            input=message_list + scratchpad + red_message,
+                            input=message_list + scratchpad + [red_message],
                             temperature=self.temperature,
                             max_output_tokens=self.max_tokens,
                         )
@@ -118,13 +118,13 @@ class AdversarialSampler(SamplerBase):
                         )
                         response = self.client.responses.create(
                             model=self.model,
-                            input=message_list + scratchpad + blue_message,
+                            input=message_list + scratchpad + [blue_message],
                             reasoning=reasoning,
                         )
                     else:
                         response = self.client.responses.create(
                             model=self.model,
-                            input=message_list + scratchpad + blue_message,
+                            input=message_list + scratchpad + [blue_message],
                             temperature=self.temperature,
                             max_output_tokens=self.max_tokens,
                         )
