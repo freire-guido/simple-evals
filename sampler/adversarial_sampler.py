@@ -56,9 +56,9 @@ class AdversarialSampler(SamplerBase):
 
     def _red_team_call(self, message_list: MessageList) -> SamplerResponse:
         scratchpad = []
-        for red_message in self.red_messages:
-            trial = 0
-            while True:
+        while True:
+            for red_message in self.red_messages:
+                trial = 0
                 try:
                     if self.reasoning_model:
                         reasoning = (
@@ -96,19 +96,19 @@ class AdversarialSampler(SamplerBase):
                     time.sleep(exception_backoff)
                     trial += 1
                 # unknown error shall throw exception      
-        return SamplerResponse(
-            response_text=response.output_text,
-            response_metadata={"usage": response.usage, "scratchpad_red": scratchpad},
-            actual_queried_message_list=message_list,
-        )
+            return SamplerResponse(
+                response_text=response.output_text,
+                response_metadata={"usage": response.usage, "scratchpad_red": scratchpad},
+                actual_queried_message_list=message_list,
+            )
 
     def __call__(self, message_list: MessageList) -> SamplerResponse:
         scratchpad = []
         red_team_response = self._red_team_call(message_list)
         message_list = message_list + [self._pack_message("assistant", red_team_response.response_text)]
-        for blue_message in self.blue_messages:
-            trial = 0
-            while True:
+        while True:
+            for blue_message in self.blue_messages:
+                trial = 0
                 try:
                     if self.reasoning_model:
                         reasoning = (
@@ -150,12 +150,12 @@ class AdversarialSampler(SamplerBase):
                     time.sleep(exception_backoff)
                     trial += 1
                 # unknown error shall throw exception
-        return SamplerResponse(
-            response_text=response.output_text,
-            response_metadata={
-                "usage": response.usage + red_team_response.response_metadata["usage"],
-                "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
-                "scratchpad_blue": scratchpad,
-            },
-            actual_queried_message_list=message_list,
-        )
+            return SamplerResponse(
+                response_text=response.output_text,
+                response_metadata={
+                    "usage": response.usage + red_team_response.response_metadata["usage"],
+                    "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
+                    "scratchpad_blue": scratchpad,
+                },
+                actual_queried_message_list=message_list,
+            )
