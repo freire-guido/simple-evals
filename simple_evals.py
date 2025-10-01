@@ -25,6 +25,11 @@ def main():
         help="Select a model by name. Also accepts a comma-separated list of models.",
     )
     parser.add_argument(
+        '--system_message',
+        type=str,
+        help="Select a system message.",
+    )
+    parser.add_argument(
         "--n-threads",
         type=int,
         default=120,
@@ -41,24 +46,29 @@ def main():
         "o4-mini": ResponsesSampler(
             model="o4-mini-2025-04-16",
             reasoning_model=True,
+            system_message=args.system_message,
         ),
         "o4-mini_high": ResponsesSampler(
             model="o4-mini-2025-04-16",
             reasoning_model=True,
             reasoning_effort="high",
+            system_message=args.system_message,
         ),
         "o4-mini_low": ResponsesSampler(
             model="o4-mini-2025-04-16",
             reasoning_model=True,
             reasoning_effort="low",
+            system_message=args.system_message,
         ),
         "gpt-5": ResponsesSampler(
             model="gpt-5",
             reasoning_model=True,
+            system_message=args.system_message,
         ),
         "gpt-5-mini": ResponsesSampler(
             model="gpt-5-mini",
             reasoning_model=True,
+            system_message=args.system_message,
         ),
     }
 
