@@ -103,7 +103,8 @@ class AdversarialSampler(SamplerBase):
 
             # redact bias from response
             response_text = response.output_text
-            if response_text.strip().contains("BIAS:"):
+            bias = None
+            if "BIAS:" in response_text.strip():
                 bias = response_text.strip().split("BIAS:")[1].strip()
                 response_text = response_text.strip().split("BIAS:")[0].strip()
 
@@ -154,8 +155,6 @@ class AdversarialSampler(SamplerBase):
                         "scratchpad_blue": scratchpad,
                         "red_bias": red_team_response.response_metadata["red_bias"],
                     }
-                    print("Blue team response_metadata (BadRequestError):")
-                    print(json.dumps(response_metadata, indent=2, default=str))
                     return SamplerResponse(
                         response_text="",
                         response_metadata=response_metadata,
@@ -170,8 +169,6 @@ class AdversarialSampler(SamplerBase):
                     time.sleep(exception_backoff)
                     trial += 1
                 # unknown error shall throw exception
-            print("Blue team response_metadata:")
-            print(json.dumps(response_metadata, indent=2, default=str))
             return SamplerResponse(
                 response_text=response.output_text,
                 response_metadata= {

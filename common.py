@@ -1,4 +1,5 @@
 import io
+import json
 import os
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -147,6 +148,10 @@ HTML_JINJA = """
 <p>Correct Answer: {{ correct_answer }}</p>
 <p>Extracted Answer: {{ extracted_answer }}</p>
 <p>Score: {{ score }}</p>
+{% if response_metadata %}
+<h3>Response Metadata</h3>
+<pre style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">{{ response_metadata | safe_json(indent=2) }}</pre>
+{% endif %}
 """
 
 
@@ -264,6 +269,12 @@ def message_to_html(message: Message) -> str:
 
 
 jinja_env.globals["message_to_html"] = message_to_html
+
+def safe_json_dumps(obj, indent=2):
+    """Safely serialize objects to JSON, converting non-serializable objects to strings."""
+    return json.dumps(obj, indent=indent, default=str)
+
+jinja_env.filters["safe_json"] = safe_json_dumps
 
 
 _report_template = """<!DOCTYPE html>

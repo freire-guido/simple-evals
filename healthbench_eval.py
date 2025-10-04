@@ -482,6 +482,7 @@ class HealthBenchEval(Eval):
                 next_message=dict(content=response_text, role="assistant"),
                 score=metrics["overall_score"],
                 extracted_answer=response_text,
+                response_metadata=response_dict,  # Pass metadata to template
             )
 
             convo = actual_queried_prompt_messages + [
@@ -502,6 +503,7 @@ class HealthBenchEval(Eval):
                     "completion_id": hashlib.sha256(
                         (row["prompt_id"] + response_text).encode("utf-8")
                     ).hexdigest(),
+                    "response_metadata": response_dict,  # Include full response metadata
                 },
             )
 
