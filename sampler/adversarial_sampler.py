@@ -1,4 +1,4 @@
-import os
+import os, json
 import time
 from typing import Any
 
@@ -132,13 +132,17 @@ class AdversarialSampler(SamplerBase):
                     scratchpad.append(self._pack_message("assistant", response.output_text))
                 except openai.BadRequestError as e:
                     print("Bad Request Error", e)
+                    response_metadata = {
+                        "usage_red": red_team_response.response_metadata["usage"],
+                        "usage_blue": response.usage,
+                        "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
+                        "scratchpad_blue": scratchpad,
+                    }
+                    print("Blue team response_metadata (BadRequestError):")
+                    print(json.dumps(response_metadata, indent=2, default=str))
                     return SamplerResponse(
                         response_text="",
-                        response_metadata={
-                            "usage": red_team_response.response_metadata["usage"] + response.metadata["usage"],
-                            "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
-                            "scratchpad_blue": scratchpad,
-                        },
+                        response_metadata=response_metadata,
                         actual_queried_message_list=message_list,
                     )
                 except Exception as e:
@@ -150,12 +154,16 @@ class AdversarialSampler(SamplerBase):
                     time.sleep(exception_backoff)
                     trial += 1
                 # unknown error shall throw exception
+            response_metadata = {
+                "usage_red": red_team_response.response_metadata["usage"],
+                "usage_blue": response.usage,
+                "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
+                "scratchpad_blue": scratchpad,
+            }
+            print("Blue team response_metadata:")
+            print(json.dumps(response_metadata, indent=2, default=str))
             return SamplerResponse(
                 response_text=response.output_text,
-                response_metadata={
-                    "usage": response.metadata["usage"] + red_team_response.response_metadata["usage"],
-                    "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
-                    "scratchpad_blue": scratchpad,
-                },
+                response_metadata=response_metadata,
                 actual_queried_message_list=message_list,
             )
