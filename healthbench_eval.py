@@ -479,8 +479,10 @@ class HealthBenchEval(Eval):
                 )
             ).render(
                 prompt_messages=actual_queried_prompt_messages,
-                next_message=dict(content=response_text, role="assistant"),
-                score=metrics["overall_score"],
+                blue_response=dict(content=response_text, role="assistant"),
+                suspicion_score=response_dict["scratchpad_blue"][1]["content"],
+                red_response=dict(content=response_dict["scratchpad_red"][-1]["content"], role="assistant"),
+                evaluator_score=metrics["overall_score"],
                 extracted_answer=response_text,
                 response_metadata=response_dict,  # Pass metadata to template
             )

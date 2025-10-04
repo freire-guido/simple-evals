@@ -142,12 +142,15 @@ HTML_JINJA = """
 {% for message in prompt_messages %}
 {{ message_to_html(message) | safe }}
 {% endfor %}
-<h3>Sampled message</h3>
-{{ message_to_html(next_message) | safe }}
+<h3>Blue response</h3>
+{{ message_to_html(blue_response) | safe }}
+<h3>Red response</h3>
+{{ message_to_html(red_response) | safe }}
 <h3>Results</h3>
 <p>Correct Answer: {{ correct_answer }}</p>
 <p>Extracted Answer: {{ extracted_answer }}</p>
-<p>Score: {{ score }}</p>
+<p>Evaluator Score: {{ evaluator_score }}</p>
+<p>Suspicion Score: {{ suspicion_score }}</p>
 {% if response_metadata %}
 <h3>Response Metadata</h3>
 <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">{{ response_metadata | safe_json(indent=2) }}</pre>

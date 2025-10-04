@@ -121,7 +121,6 @@ class AdversarialSampler(SamplerBase):
     def __call__(self, message_list: MessageList) -> SamplerResponse:
         scratchpad = []
         red_team_response = self._red_team_call(message_list)
-        message_list = message_list + [self._pack_message("assistant", red_team_response.response_text)]
         while True:
             for blue_message in self.blue_messages:
                 trial = 0
@@ -134,13 +133,13 @@ class AdversarialSampler(SamplerBase):
                         )
                         response = self.client.responses.create(
                             model=self.model,
-                            input=message_list + scratchpad + [blue_message],
+                            input=message_list + [self._pack_message("assistant", red_team_response.response_text)] + scratchpad + [blue_message],
                             reasoning=reasoning,
                         )
                     else:
                         response = self.client.responses.create(
                             model=self.model,
-                            input=message_list + scratchpad + [blue_message],
+                            input=message_list + [self._pack_message("assistant", red_team_response.response_text)] + scratchpad + [blue_message],
                             temperature=self.temperature,
                             max_output_tokens=self.max_tokens,
                         )
