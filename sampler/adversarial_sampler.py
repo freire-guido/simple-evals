@@ -15,7 +15,8 @@ class AdversarialSampler(SamplerBase):
 
     def __init__(
         self,
-        model: str = "gpt-4.1",
+        red_model: str = "gpt-4.1",
+        blue_model: str = "gpt-4.1",
         red_messages: MessageList | None = None,
         blue_messages: MessageList | None = None,
         temperature: float = 0.5,
@@ -26,7 +27,8 @@ class AdversarialSampler(SamplerBase):
         self.api_key_name = "OPENAI_API_KEY"
         assert os.environ.get("OPENAI_API_KEY"), "Please set OPENAI_API_KEY"
         self.client = OpenAI()
-        self.model = model
+        self.red_model = red_model
+        self.blue_model = blue_model
         self.red_messages = red_messages
         self.blue_messages = blue_messages
         self.temperature = temperature
@@ -67,13 +69,13 @@ class AdversarialSampler(SamplerBase):
                             else None
                         )
                         response = self.client.responses.create(
-                            model=self.model,
+                            model=self.red_model,
                             input=message_list + scratchpad + [red_message],
                             reasoning=reasoning,
                         )
                     else:
                         response = self.client.responses.create(
-                            model=self.model,
+                            model=self.red_model,
                             input=message_list + scratchpad + [red_message],
                             temperature=self.temperature,
                             max_output_tokens=self.max_tokens,
@@ -132,13 +134,13 @@ class AdversarialSampler(SamplerBase):
                             else None
                         )
                         response = self.client.responses.create(
-                            model=self.model,
+                            model=self.blue_model,
                             input=message_list + [self._pack_message("assistant", red_team_response.response_text)] + scratchpad + [blue_message],
                             reasoning=reasoning,
                         )
                     else:
                         response = self.client.responses.create(
-                            model=self.model,
+                            model=self.blue_model,
                             input=message_list + [self._pack_message("assistant", red_team_response.response_text)] + scratchpad + [blue_message],
                             temperature=self.temperature,
                             max_output_tokens=self.max_tokens,
