@@ -84,7 +84,11 @@ class AdversarialSampler(SamplerBase):
                     print("Bad Request Error", e)
                     return SamplerResponse(
                         response_text="",
-                        response_metadata={"usage": None},
+                        response_metadata={
+                            "usage": None,
+                            "scratchpad_red": scratchpad,
+                            "red_bias": None,
+                        },
                         actual_queried_message_list=message_list,
                     )
                 except Exception as e:
@@ -96,9 +100,20 @@ class AdversarialSampler(SamplerBase):
                     time.sleep(exception_backoff)
                     trial += 1
                 # unknown error shall throw exception      
+
+            # redact bias from response
+            response_text = response.output_text
+            if response_text.strip().contains("BIAS:"):
+                bias = response_text.strip().split("BIAS:")[1].strip()
+                response_text = response_text.strip().split("BIAS:")[0].strip()
+
             return SamplerResponse(
-                response_text=response.output_text,
-                response_metadata={"usage": response.usage, "scratchpad_red": scratchpad},
+                response_text=response_text,
+                response_metadata={
+                    "usage": response.usage,
+                    "scratchpad_red": scratchpad,
+                    "red_bias": bias,
+                },
                 actual_queried_message_list=message_list,
             )
 
@@ -137,6 +152,7 @@ class AdversarialSampler(SamplerBase):
                         "usage_blue": response.usage,
                         "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
                         "scratchpad_blue": scratchpad,
+                        "red_bias": red_team_response.response_metadata["red_bias"],
                     }
                     print("Blue team response_metadata (BadRequestError):")
                     print(json.dumps(response_metadata, indent=2, default=str))
@@ -154,16 +170,16 @@ class AdversarialSampler(SamplerBase):
                     time.sleep(exception_backoff)
                     trial += 1
                 # unknown error shall throw exception
-            response_metadata = {
-                "usage_red": red_team_response.response_metadata["usage"],
-                "usage_blue": response.usage,
-                "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
-                "scratchpad_blue": scratchpad,
-            }
             print("Blue team response_metadata:")
             print(json.dumps(response_metadata, indent=2, default=str))
             return SamplerResponse(
                 response_text=response.output_text,
-                response_metadata=response_metadata,
+                response_metadata= {
+                    "usage_red": red_team_response.response_metadata["usage"],
+                    "usage_blue": response.usage,
+                    "scratchpad_red": red_team_response.response_metadata["scratchpad_red"],
+                    "scratchpad_blue": scratchpad,
+                    "red_bias": red_team_response.response_metadata["red_bias"],
+                },
                 actual_queried_message_list=message_list,
             )
