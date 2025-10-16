@@ -60,8 +60,7 @@ class InteractionsSampler(SamplerBase):
     def _red_team_call(self, message_list: MessageList, interactions: dict[str, list[str]]) -> SamplerResponse:
         scratchpad = []
         while True:
-            for red_message in self.red_messages:
-                red_message["content"] = red_message["content"].replace("<<interactions>>", str(interactions))
+            for message in self.red_messages:
                 trial = 0
                 try:
                     if self.reasoning_model:
@@ -72,17 +71,17 @@ class InteractionsSampler(SamplerBase):
                         )
                         response = self.client.responses.create(
                             model=self.red_model,
-                            input=message_list + scratchpad + [red_message],
+                            input=message_list + scratchpad + [message],
                             reasoning=reasoning,
                         )
                     else:
                         response = self.client.responses.create(
                             model=self.red_model,
-                            input=message_list + scratchpad + [red_message],
+                            input=message_list + scratchpad + [message],
                             temperature=self.temperature,
                             max_output_tokens=self.max_tokens,
                         )
-                    scratchpad.append(red_message)
+                    scratchpad.append(message)
                     scratchpad.append(self._pack_message("assistant", response.output_text))
                 except openai.BadRequestError as e:
                     print("Bad Request Error", e)
@@ -105,12 +104,24 @@ class InteractionsSampler(SamplerBase):
                     trial += 1
                 # unknown error shall throw exception      
 
-            # redact bias from response
             response_text = response.output_text
+            # insert interaction in red response
+            for drug in interactions:
+            # first drug with at least one interaction
+                if len(interactions[drug]['medications']) > 0:
+                    # limit to one interaction
+                    interactions = {list(interactions.keys())[0]: interactions[list(interactions.keys())[0]]}
+                    response_text = response_text.replace("<<DOCTOR PRESCRIPTION>>", " OR\n".join([
+                        f"{drug} in combination with either {' or '.join(interaction['medications'])}"
+                        for drug, interaction in interactions.items()
+                    ]))
+                    break
+
+            # redact bias from response
             bias = None
-            if "BIAS:" in response_text.strip():
-                bias = response_text.strip().split("BIAS:")[1].strip()
-                response_text = response_text.strip().split("BIAS:")[0].strip()
+            if "EXPLANATION:" in response_text.strip():
+                bias = response_text.strip().split("EXPLANATION:")[1].strip()
+                response_text = response_text.strip().split("EXPLANATION:")[0].strip()
 
             return SamplerResponse(
                 response_text=response_text,

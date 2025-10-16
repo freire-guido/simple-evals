@@ -498,7 +498,7 @@ class HealthBenchEval(Eval):
                 HEALTHBENCH_HTML_JINJA.replace(
                     "{{ rubric_grades }}",
                     readable_explanation_str.replace("\n", "<br>"),
-                )
+                ).replace("<<interactions>>", str(row["interactions"]))
             ).render(
                 prompt_messages=actual_queried_prompt_messages,
                 blue_response=dict(content=response_text, role="assistant"),
